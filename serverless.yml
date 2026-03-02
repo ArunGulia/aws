@@ -1,0 +1,40 @@
+service: websocket-service
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-south-1
+  environment:
+   JWT_SECRET: "YOUR_JWT_SECRET_KEY"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+      Resource: "*"
+    - Effect: Allow
+      Action:
+        - execute-api:ManageConnections
+      Resource: "*"
+
+functions:
+  connect:
+    handler: src/handlers/connect.handler
+    events:
+      - websocket:
+          route: $connect
+
+  disconnect:
+    handler: src/handlers/disconnect.handler
+    events:
+      - websocket:
+          route: $disconnect
+
+  message:
+    handler: src/handlers/message.handler
+    events:
+      - websocket:
+          route: sendMessage
+ 
+#replac the JWT secret with placeholder value in production or in github repository to avoid security risks.
